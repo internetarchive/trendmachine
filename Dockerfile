@@ -1,12 +1,21 @@
-#!/usr/bin/env -S docker image build -t resilience . -f
+#!/usr/bin/env -S docker image build -t trendmachine . -f
 
-FROM python:3
+FROM     python:3
 
-ENV STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+ENV      STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
-WORKDIR /app
-CMD ["streamlit", "run", "main.py"]
+RUN      adduser --disabled-password --gecos "" appuser
 
-RUN pip install --no-cache-dir streamlit requests
+WORKDIR  /app
 
-COPY . ./
+RUN      pip install --no-cache-dir \
+           streamlit \
+           requests
+
+COPY     . ./
+
+COPY     --chown=appuser:appuser . ./
+
+USER     appuser
+
+CMD      ["streamlit", "run", "main.py"]
