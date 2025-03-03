@@ -15,7 +15,7 @@ from archive import DailyRecord
 from samples import PeriodicSamples
 
 
-TITLE = "Webpage Resilience"
+TITLE = "TrendMachine: Webpage Resilience"
 ICON = "https://archive.org/favicon.ico"
 WBM = "https://web.archive.org/web"
 CDXAPI = "https://web.archive.org/cdx/search/cdx"
@@ -408,9 +408,11 @@ cols[5].metric("Chaos", f"{d['Chaos'].iloc[-1]:.5f}", f"{d['Chaosn'].iloc[-1]:.5
 stips = [alt.Tooltip("2xx:Q", format=","), alt.Tooltip("3xx:Q", format=","), alt.Tooltip("4xx:Q", format=","), alt.Tooltip("5xx:Q", format=","), alt.Tooltip("All:Q", format=",")]
 zoom = alt.selection_interval(bind="scales", encodings=["x"])
 
+CHARTHEIGHT = 160
+
 tbs = st.tabs(["📈 Resilience", "☰ Data"])
 with tbs[0]:
-    c = alt.LayerChart(d, height=250).encode(
+    c = alt.LayerChart(d, height=CHARTHEIGHT).encode(
         x=alt.X("Day:T", scale=alt.Scale(domain=TDM)),
         y=alt.Y("Resilience:Q", impute={"value": None}, scale=alt.Scale(domain=[-0.05, 1.05])),
         tooltip=["Day:T", alt.Tooltip("Resilience:Q", format="0.5f"), "Specimen", "Filled"] + stips
@@ -429,7 +431,7 @@ with tbs[1]:
 
 tbs = st.tabs(["📈 Fixity", "☰ Data"])
 with tbs[0]:
-    c = alt.LayerChart(d, height=250).encode(
+    c = alt.LayerChart(d, height=CHARTHEIGHT).encode(
         x=alt.X("Day:T", scale=alt.Scale(domain=TDM)),
         y=alt.Y("Fixity:Q", impute={"value": None}, scale=alt.Scale(domain=[-0.05, 1.05])),
         tooltip=["Day:T", alt.Tooltip("Fixity:Q", format="0.5f"), "Digest", "Content"]
@@ -449,7 +451,7 @@ with tbs[1]:
 tbs = st.tabs(["📈 Chaos", "☰ Data"])
 chd = d.loc[:, ["Day", "Chaosn", "Chaos"]].rename(columns={"Chaos": "All", "Chaosn": "Last1000"}).melt("Day", var_name="Window", value_name="Chaos")
 with tbs[0]:
-    c = alt.Chart(chd, height=250).mark_line(size=3).encode(
+    c = alt.Chart(chd, height=CHARTHEIGHT).mark_line(size=3).encode(
         x=alt.X("Day:T", scale=alt.Scale(domain=TDM)),
         y=alt.Y("Chaos:Q", scale=alt.Scale(domain=[-0.05, 1.05])),
         color="Window:N",
@@ -460,7 +462,7 @@ with tbs[1]:
     st.write(d.loc[:, ["Day", "Chaos", "Chaosn"]].rename(columns={"Chaosn": "Chaos1000"}))
 
 tbs = st.tabs(["📈 Monthly Status", "📈 Log Scale", "☰ Data"])
-mtr = alt.Chart(monthly, height=250).transform_fold(
+mtr = alt.Chart(monthly, height=CHARTHEIGHT).transform_fold(
         ["2xx", "3xx", "4xx", "5xx"],
         as_=["Status", "Count"]
     ).mark_bar()
