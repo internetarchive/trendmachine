@@ -129,7 +129,7 @@ def load_cdx_pages(url):
             break
 
 
-@st.cache_data(persist=True, show_spinner=False)
+@st.cache_data(ttl=3600, persist=True, show_spinner=False)
 def load_cdx(url):
     digest_status = {}
     date_record = {}
