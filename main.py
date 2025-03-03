@@ -41,7 +41,7 @@ def ymd(d):
     return "".join([s for k, v in t.items() if v for s in (str(v), k)])
 
 
-@st.cache(max_entries=65536, show_spinner=False)
+@st.cache_data(max_entries=65536, show_spinner=False)
 def _sigmoid_inverse(x, shift, slope):
     return 1 + exp(shift - x / slope)
 
@@ -101,7 +101,7 @@ def filler(drs, fill, policy):
     return f
 
 
-@st.cache(ttl=3600)
+@st.cache_data(ttl=3600)
 def get_resp_headers(url):
     res = requests.head(url, allow_redirects=True)
     rh = res.history + [res]
@@ -129,7 +129,7 @@ def load_cdx_pages(url):
             break
 
 
-@st.cache(ttl=3600, persist=True, show_spinner=False, suppress_st_warning=True)
+@st.cache_data(ttl=3600, persist=True, show_spinner=False)
 def load_cdx(url):
     digest_status = {}
     date_record = {}
@@ -186,7 +186,7 @@ def load_cdx(url):
     return (date_record, psc.sample)
 
 
-@st.cache(ttl=3600)
+@st.cache_data(ttl=3600)
 def load_data(url, fill, policy, sigparams):
     date_record, psc = deepcopy(load_cdx(url))
     if not date_record:
@@ -251,7 +251,7 @@ def load_data(url, fill, policy, sigparams):
     return (resdf, trsdf, pscdf)
 
 
-@st.cache(max_entries=10, show_spinner=False, allow_output_mutation=True)
+@st.cache_data(max_entries=10, show_spinner=False)
 def sigmoid_shape(k, v):
     t = range(101)
     initial = 1 if v[2] < 0 else 0
@@ -261,7 +261,7 @@ def sigmoid_shape(k, v):
 
 
 prev = st.session_state.get("prev", "")
-qp = st.experimental_get_query_params()
+qp = st.query_params
 
 if "url" not in st.session_state and qp.get("url"):
     st.session_state["url"] = qp.get("url")[0]
@@ -364,7 +364,8 @@ if prev and prev != st.session_state["prev"]:
 
 qarg = dict(st.session_state)
 qarg.pop("prev", None)
-st.experimental_set_query_params(**qarg)
+for k, v in qarg:
+    st.query_params[k] = v
 
 try:
     # TODO: canonicalize url for better caching
