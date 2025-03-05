@@ -378,7 +378,7 @@ DOMC = ["Changed", "Unchanged", "Unknown"]
 RNGC = ["red", "teal", "gray"]
 
 orig = d[d["All"]!=0][["Day", "Datetime", "2xx", "3xx", "4xx", "5xx", "All"]]
-monthly = orig.groupby(orig["Day"].str[:8] + "15").sum().reset_index().rename(columns={"Day": "Month"})
+monthly = orig.groupby(orig["Day"].str[:8] + "15").sum(numeric_only=True).reset_index().rename(columns={"Day": "Month"})
 summary = orig.replace(0, np.nan).describe().transpose().reset_index().rename(columns={"index": "Status", "25%": "q1", "50%": "median", "75%": "q3"}).replace(np.nan, 0).astype({"count": int, "min": int, "max": int})
 totals = orig.sum(numeric_only=True).reset_index().rename(columns={"index": "Status", 0: "Total"})
 inactive = (pd.to_datetime("today") - pd.to_datetime(orig["Day"].iloc[-1])).days
