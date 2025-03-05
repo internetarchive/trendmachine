@@ -8,6 +8,7 @@ import streamlit.components.v1 as components
 
 from copy import deepcopy
 from dataclasses import dataclass, field, asdict
+from datetime import datetime
 from math import exp
 from urllib.parse import quote_plus
 
@@ -370,7 +371,7 @@ except ValueError as e:
     st.warning(e)
     st.stop()
 
-TDM = d["Day"].iloc[[0, -1]].values[:]
+TDM = [datetime.strptime(d, "%Y-%m-%d") for d in d["Day"].iloc[[0, -1]]]
 OBS = ["Active", "Filled", "Missing"]
 DOM = ["2xx", "3xx", "4xx", "5xx", "~"]
 RNG = ["teal", "orange", "red", "darkred", "gray"]
