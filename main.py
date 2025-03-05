@@ -360,7 +360,7 @@ if prev and prev != st.session_state["prev"]:
 
 qarg = dict(st.session_state)
 qarg.pop("prev", None)
-for k, v in qarg:
+for k, v in qarg.items():
     st.query_params[k] = v
 
 try:
