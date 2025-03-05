@@ -111,22 +111,18 @@ def get_resp_headers(url):
 def load_cdx_pages(url):
     ses = requests.Session()
     prog = st.progress(0)
-    page = 0
-    while page < MAXCDXPAGES:
-        pageurl = f"{url}&page={page}"
-        r = ses.get(pageurl, stream=True)
+    cdxurl = f"{CDXAPI}?url={quote_plus(url)}"
+    pages = min(int(ses.get(f"{cdxurl}&showNumPages=true").text), MAXCDXPAGES)
+    for page in range(pages):
+        r = ses.get(f"{cdxurl}&fl=timestamp,statuscode,digest&page={page}", stream=True)
         if not r.ok:
             prog.empty()
             raise ValueError(f"CDX API returned `{r.status_code}` status code for `{url}`")
         r.raw.decode_content = True
         for line in r.raw:
             yield line
-        page += 1
-        maxp = int(r.headers.get("x-cdx-num-pages", 1))
-        prog.progress(min(page/maxp, 1.0))
-        if page >= maxp:
-            prog.empty()
-            break
+        prog.progress(min(page+1/pages, 1.0))
+    prog.empty()
 
 
 @st.cache_data(ttl=3600, persist=True, show_spinner=False)
@@ -143,7 +139,7 @@ def load_cdx(url):
     pc = "~"
     ps = "~"
     rs = us = uw = 0
-    for l in load_cdx_pages(f"{CDXAPI}?fl=timestamp,statuscode,digest&url={quote_plus(url)}"):
+    for l in load_cdx_pages(url):
         ts, s, d = l.decode().split()
         psc(ts)
         t = f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}"
@@ -186,7 +182,7 @@ def load_cdx(url):
     return (date_record, psc.sample)
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=3600, show_spinner=False)
 def load_data(url, fill, policy, sigparams):
     date_record, psc = deepcopy(load_cdx(url))
     if not date_record:
