@@ -385,7 +385,7 @@ totals = orig.sum(numeric_only=True).reset_index().rename(columns={"index": "Sta
 inactive = (pd.to_datetime("today") - pd.to_datetime(orig["Day"].iloc[-1])).days
 filled = len(d[d["Filled"]==True])
 specimens = pd.DataFrame({"Specimen": OBS, "Days": [len(orig), filled, len(d)-len(orig)-filled]})
-fixities = d.Content.value_counts().sort_index().reset_index().rename(columns={"index": "Content", "Content": "Count"})
+fixities = d.Content.value_counts().sort_index().reset_index().rename(columns={"count": "Count"})
 okct, mmct = totals[totals["Status"].isin(["2xx", "All"])]["Total"].values
 
 cols = st.columns(6)
