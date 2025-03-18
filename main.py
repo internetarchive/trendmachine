@@ -257,15 +257,17 @@ def sigmoid_shape(k, v):
     return alt.Chart(cd).mark_line().encode(x="Time:Q", y=alt.Y("Resilience:Q", scale=alt.Scale(domain=[0, 1]))).properties(height=79).configure_axis(grid=False, title=None)
 
 
-prev = st.session_state.get("prev", "")
+ss = st.session_state
 qp = st.query_params
 
-if "url" not in st.session_state and qp.get("url"):
-    st.session_state["url"] = qp.get("url")
-if "fill" not in st.session_state and qp.get("fill"):
-    st.session_state["fill"] = int(float(qp.get("fill")))
-if "policy" not in st.session_state and qp.get("policy"):
-    st.session_state["policy"] = qp.get("policy")
+prev = ss.get("prev", "")
+
+if "url" not in ss and qp.get("url"):
+    ss["url"] = qp.get("url")
+if "fill" not in ss and qp.get("fill"):
+    ss["fill"] = int(float(qp.get("fill")))
+    if "policy" not in ss and qp.get("policy"):
+        ss["policy"] = qp.get("policy")
 
 cols = st.columns([8, 2, 2])
 url = cols[0].text_input("URL", key="url", placeholder="https://example.com/")
@@ -274,10 +276,10 @@ policy = cols[2].selectbox("Filling Policy", fillpolicies, format_func=lambda x:
 
 sigattrs =  ["shift2", "slope2", "spread2", "shift3", "slope3", "spread3", "shift4", "slope4", "spread4", "shift5", "slope5", "spread5", "shiftu", "slopeu", "spreadu", "shiftcu", "slopecu", "spreadcu", "shiftcc", "slopecc", "spreadcc", "shiftuk", "slopeuk", "spreaduk"]
 for p in sigattrs:
-    if p not in st.session_state and qp.get(p):
-        st.session_state[p] = float(qp.get(p))
+    if p not in ss and qp.get(p):
+        ss[p] = float(qp.get(p))
 
-st.session_state["prev"] = "".join([str(st.session_state.get(a, "")) for a in sigattrs])
+ss["prev"] = "".join([str(ss.get(a, "")) for a in sigattrs])
 
 shapes = {}
 
@@ -354,15 +356,15 @@ for k, v in sigparams.items():
 if not url:
     st.stop()
 
-if prev and prev != st.session_state["prev"]:
+if prev and prev != ss["prev"]:
     st.info("Sigmoid parameters changed!")
     st.button("Recalculate Resilience")
     st.stop()
 
-qarg = dict(st.session_state)
+qarg = dict(ss)
 qarg.pop("prev", None)
 for k, v in qarg.items():
-    st.query_params[k] = v
+    qp[k] = v
 
 try:
     # TODO: canonicalize url for better caching
