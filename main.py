@@ -261,11 +261,11 @@ prev = st.session_state.get("prev", "")
 qp = st.query_params
 
 if "url" not in st.session_state and qp.get("url"):
-    st.session_state["url"] = qp.get("url")[0]
+    st.session_state["url"] = qp.get("url")
 if "fill" not in st.session_state and qp.get("fill"):
-    st.session_state["fill"] = int(float(qp.get("fill")[0]))
+    st.session_state["fill"] = int(float(qp.get("fill")))
 if "policy" not in st.session_state and qp.get("policy"):
-    st.session_state["policy"] = qp.get("policy")[0]
+    st.session_state["policy"] = qp.get("policy")
 
 cols = st.columns([8, 2, 2])
 url = cols[0].text_input("URL", key="url", placeholder="https://example.com/")
@@ -275,7 +275,7 @@ policy = cols[2].selectbox("Filling Policy", fillpolicies, format_func=lambda x:
 sigattrs =  ["shift2", "slope2", "spread2", "shift3", "slope3", "spread3", "shift4", "slope4", "spread4", "shift5", "slope5", "spread5", "shiftu", "slopeu", "spreadu", "shiftcu", "slopecu", "spreadcu", "shiftcc", "slopecc", "spreadcc", "shiftuk", "slopeuk", "spreaduk"]
 for p in sigattrs:
     if p not in st.session_state and qp.get(p):
-        st.session_state[p] = float(qp.get(p)[0])
+        st.session_state[p] = float(qp.get(p))
 
 st.session_state["prev"] = "".join([str(st.session_state.get(a, "")) for a in sigattrs])
 
